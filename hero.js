@@ -5,7 +5,9 @@ var colors = require('colors');
 
 var hero = function(options) {
   this.heroku = new Heroku({token: options.token});;
+  this.skipInactive = options.skipInactive;
   this.addons = {};
+  this.csvBuffer = {};
 
   this.total = 0;
 }
@@ -62,17 +64,21 @@ hero.prototype.readAddons = function(apps) {
 }
 
 hero.prototype.displayPriceApp = function(appName,app) {
-  console.log("App Name : ".bold+appName.blue);
+  var buffer = "";
+  
+  buffer += "App Name : ".bold+appName.blue+"\n";
   var self = this;
 
   var activeDynos = 0;
   var inactiveDynos = 0;
   var dynoCost = 0;
-  
-  console.log("Dynos : ".bold+app.dynos.length.toString().green);
+ 
+  buffer += "Dynos : ".bold+app.dynos.length.toString().green+"\n";
   app.dynos.forEach(function(d) {
     var title = "\t- "+d.size+" "+d.name;
     if(d.state == 'up' || d.state == 'crashed') {
+      activeDynos++;
+
       switch(d.size) {
         case '1X':
         cost = 0.05 * 24 * 31;
@@ -101,12 +107,13 @@ hero.prototype.displayPriceApp = function(appName,app) {
       priceStr = "($"+cost+"/mo)";
       title = title.green;
     } else {
+      inactiveDynos++;
       cost = 0;
       title = title.yellow;
       priceStr = "(Inactive)".yellow
     }
 
-    console.log(title.green+" "+priceStr.yellow);
+    buffer += title.green+" "+priceStr.yellow+"\n";
     dynoCost += cost;
   });
 
@@ -114,8 +121,8 @@ hero.prototype.displayPriceApp = function(appName,app) {
   dynoCost = Math.round(Math.max(dynoCost,0));
   this.total += dynoCost;
 
-  console.log("Dynos Adjusted Cost : ".bold+"$"+dynoCost+"/mo");
-  console.log("Addons : ".bold+app.addons.length.toString().green);
+  buffer += "Dynos Adjusted Cost : ".bold+"$"+dynoCost+"/mo\n";
+  buffer += "Addons : ".bold+app.addons.length.toString().green+"\n";
 
   var addonCost = 0;
   app.addons.forEach(function(addon) {
@@ -127,17 +134,20 @@ hero.prototype.displayPriceApp = function(appName,app) {
 
     addonCost += price;
     var priceStr = " ($"+price+"/mo)";
-    console.log("\t- ".green+details.name.green+priceStr.yellow);
+    buffer += "\t- ".green+details.name.green+priceStr.yellow+"\n";
   });
   this.total += addonCost;
 
 
-  console.log("Addons Cost : ".bold+"$"+addonCost+"/mo");
+  buffer += "Addons Cost : ".bold+"$"+addonCost+"/mo\n";
   var totalCost = addonCost + dynoCost;
-  console.log("App Total Cost : ".bold+"$"+totalCost.toString().red+"/mo");
-  //AddonCost
-  
-  console.log("");
+  buffer += "App Total Cost : ".bold+"$"+totalCost.toString().red+"/mo\n";
+
+  if(this.skipInactive && activeDynos == 0 && totalCost <= 0) {
+    return;
+  }
+
+  console.log(buffer);
 }
 
 hero.prototype.addAddons = function(apps) {

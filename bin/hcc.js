@@ -3,14 +3,19 @@ var Hero    = require('./../hero');
 var colors  = require('colors');
 var argv    = require('yargs').argv;
 
-var argv = require('yargs')
-    .usage('Usage: $0 -t [string] -h [num]')
+var argv = require('yargs').wrap(100)
+    .usage('Usage: $0 -t [string]')
+    .example('$0 -t 1234567-12345-123456','Get costs for all apps for this Heroku token')
+    .example('$0 -t [token] -i -c output.csv','Output CSV for all active apps')
+    .version('0.0.4', 'version', 'display version information').alias('version', 'v')
+    .help('h')
     .alias('t','token').string('t').demand('t')
     .describe('t',"Your Heroku API Token")
     .alias('i','skip-inactive').boolean('i').default('i',false)
-    .describe('i',"Skip inactive workers (To be implemented)")
-    .alias('c','csv').boolean('c').default('c',false)
-    .describe('c',"Output CSV instead (To be implemented)")
+    .describe('i',"Skip inactive workers")
+    .alias('c','csv').string('c')
+    .describe('c',"Write result as CSV to target file")
+    .epilog('for more information visit https://github.com/esya/heroku-cost-calculator')
     .argv;
 
 var hero = new Hero(argv);
