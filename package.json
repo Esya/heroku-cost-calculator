@@ -1,6 +1,6 @@
 {
   "name": "hcc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Heroku Cost Calculator - Easily calculate the cost of your heroku account, broken down by app",
   "main": "./bin/hcc.js",
   "scripts": {
@@ -9,7 +9,14 @@
   "bin": {
     "hcc": "./bin/hcc.js"
   },
-  "author": "",
+  "keywords": [
+    "heroku",
+    "billing",
+    "cost",
+    "calculator"
+  ],
+  "preferGlobal": true,
+  "author": "Tristan Foureur <esya@me.com>",
   "license": "ISC",
   "dependencies": {
     "colors": "^1.1.2",
