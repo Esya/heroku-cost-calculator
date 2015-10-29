@@ -1,13 +1,19 @@
 var Heroku = require('heroku-client');
-var fs = require('fs');
-var Q = require('q');
+var fs     = require('fs');
+var Q      = require('q');
 var colors = require('colors');
+var csv    = require('csv-write-stream')
 
 var hero = function(options) {
   this.heroku = new Heroku({token: options.token});;
   this.skipInactive = options.skipInactive;
   this.addons = {};
-  this.csvBuffer = {};
+  this.options = options;
+
+  if(options.csv) {
+    this.csvStream = csv();
+    this.csvStream.pipe(fs.createWriteStream(options.csv));
+  }
 
   this.total = 0;
 }
@@ -24,6 +30,11 @@ hero.prototype.getDynos = function() {
 hero.prototype.displayPrice = function(apps) {
   for(appName in apps) {
     this.displayPriceApp(appName,apps[appName])
+  }
+
+  if(this.options.csv) {
+    this.csvStream.end();
+    console.log("Output wrote to "+this.options.csv.bold);
   }
 
   var priceStr = "$"+this.total+"/mo";
@@ -147,7 +158,17 @@ hero.prototype.displayPriceApp = function(appName,app) {
     return;
   }
 
-  console.log(buffer);
+  if(this.options.csv) {
+    this.csvStream.write({
+      appName: appName,
+      dynoCount: activeDynos,
+      dynoCost: dynoCost,
+      addonCost: addonCost,
+      totalCost: totalCost
+    });
+  } else {
+    console.log(buffer);
+  }
 }
 
 hero.prototype.addAddons = function(apps) {
