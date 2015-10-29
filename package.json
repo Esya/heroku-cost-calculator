@@ -1,6 +1,6 @@
 {
   "name": "hcc",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Heroku Cost Calculator - Easily calculate the cost of your heroku account, broken down by app",
   "main": "./bin/hcc.js",
   "scripts": {

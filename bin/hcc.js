@@ -4,7 +4,7 @@ var colors  = require('colors');
 var argv    = require('yargs').argv;
 
 var argv = require('yargs').wrap(100)
-    .usage('Usage: $0 -t [string]')
+    .usage('Uses Heroku\'s api to get realtime cost of your apps\n\nUsage: $0 -t [string]')
     .example('$0 -t 1234567-12345-123456','Get costs for all apps for this Heroku token')
     .example('$0 -t [token] -i -c output.csv','Output CSV for all active apps')
     .version('0.0.4', 'version', 'display version information').alias('version', 'v')
